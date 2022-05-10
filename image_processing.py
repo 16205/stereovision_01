@@ -15,9 +15,11 @@ def get_red_points(scan_name):
     data_points = {"scan": {"scan_name": scan_name}}
     for i in range(length):
         img = cv2.imread(dir_path_left + str(i) + ".jpg")
-        img = cv2.threshold()
+        print(np.shape(img))
+        img = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
         coords = []
         for line in img:
+            print(line)
             x_pix = 0
             moy = 0
             count = 0
