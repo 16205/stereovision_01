@@ -36,10 +36,10 @@ def computePointCloud4Scan(scan_name, F, camWorldCenterRight, camWorldCenterLeft
 
     print(world_points[3])
     js.buildJson(scan_name, "world_coordinates(xyz)", points_world_dict)
-    draw_point_cloud(world_points)
+    draw_point_cloud(world_points, camWorldCenterLeft, camWorldCenterRight)
 
 
-def draw_point_cloud(world_points):
+def draw_point_cloud(world_points, camWorldCenterLeft, camWorldCenterRight):
     x, y, z = [], [], []
     for points in world_points:
         for point in points:
@@ -50,6 +50,11 @@ def draw_point_cloud(world_points):
     ax = Axes3D(figure, auto_add_to_figure=False) ## auto_add_to_figure=False pour ne plus avoir d'erreur
     figure.add_axes(ax) ## Pour ne plus avoir d'erreur
     ax.scatter(x, y, z, c='r', marker='o')
+    x1,y2,z2,d = camWorldCenterLeft
+    ax.scatter(x, y, z, c='g', marker='o')
+    
+    x2,y2,z2,d2 = camWorldCenterRight
+    ax.scatter(x2, y2, z2 , c='b', marker='o')
     plt.show()
 
 

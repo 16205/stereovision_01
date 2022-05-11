@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import os
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import time
 import jsonTools as js
 
@@ -13,8 +13,8 @@ methode qui retourne les caractéristiques du système nécessaires pour le trai
 '''
 def calibration():
     #on définit le chessboard
-    number_of_square_X = 10
-    number_of_square_Y = 8
+    number_of_square_X = 9
+    number_of_square_Y = 7
     nX = number_of_square_X - 1 #le nombre de coins intérieur
     nY = number_of_square_Y - 1
     #les images sont dans le dossier configuration
@@ -26,8 +26,8 @@ def calibration():
     objpoints = [] #3D points in the real world space
     imgpoints = [] #2D points in the image plane
     #on prépare les coordonnées dans le chessboard des angles avec pour unité les cases
-    objp = np.zeros((9*7,3), np.float32)
-    objp[:,:2] = np.mgrid[0:9,0:7].T.reshape(-1,2)
+    objp = np.zeros((8*6,3), np.float32)
+    objp[:,:2] = np.mgrid[0:8,0:6].T.reshape(-1,2)
     #on fait une boucle for pout traiter automatiquement les images
     print(os.listdir(directory))
     for filename in os.listdir(directory):
@@ -37,9 +37,13 @@ def calibration():
             image = cv2.imread(filename)
             # Convert the image to grayscale
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            while True:
+                cv2.imshow('img2',gray)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
             # Find the corners on the chessboard
             success, corners = cv2.findChessboardCorners(gray, (nY, nX), None)
-
+            print(corners)
             # If the corners are found by the algorithm, draw them
             if success == True:
                 objpoints.append(objp)
@@ -58,7 +62,7 @@ def calibration():
     for informations about the output of the calibration output chek :
         https://learnopencv.com/camera-calibration-using-opencv/
     """
-    return mtx, dist, rvecs, tvecs
+    return mtx, dist, rvecs, tvecs, objp
 
 #on fait le calcule de la matrice fondamentale
 def crochets(v):
@@ -93,3 +97,19 @@ def computeMatFund(mtx, dist, rvecs, tvecs):
     js.buildJson("calibration", "calibration_params", calibration_dict)
     return F, camLeft, camRight, camWorldCenterLeft, camWorldCenterRight
 
+
+
+def plotDotWorld(objp, camWorldCenterLeft, camWorldCenterRight):
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    
+    ax.scatter3D(objp[:,0],objp[:,1],objp[:,2])
+    
+    x,y,z,d = camWorldCenterLeft
+    ax.scatter(x, y, z, c='g', marker='o')
+    
+    x2,y2,z2,d2 = camWorldCenterRight
+    ax.scatter(x2, y2, z2 , c='g', marker='o')
+    
+    
+    plt.show()
