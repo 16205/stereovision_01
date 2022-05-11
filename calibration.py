@@ -37,10 +37,10 @@ def calibration():
             image = cv2.imread(filename)
             # Convert the image to grayscale
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            while True:
-                cv2.imshow('img2',gray)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
+            # while True:
+            #     cv2.imshow('img2',gray)
+            #     if cv2.waitKey(1) & 0xFF == ord('q'):
+            #         break
             # Find the corners on the chessboard
             success, corners = cv2.findChessboardCorners(gray, (nY, nX), None)
             print(corners)
@@ -106,7 +106,7 @@ def plotDotWorld(objp, camWorldCenterLeft, camWorldCenterRight):
     ax.scatter3D(objp[:,0],objp[:,1],objp[:,2])
     
     x,y,z,d = camWorldCenterLeft
-    ax.scatter(x, y, z, c='g', marker='o')
+    ax.scatter(x, y, z, c='r', marker='o')
     
     x2,y2,z2,d2 = camWorldCenterRight
     ax.scatter(x2, y2, z2 , c='g', marker='o')
