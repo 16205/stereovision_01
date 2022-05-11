@@ -1,0 +1,66 @@
+from image_processing import *
+import os
+import matplotlib.pyplot as plt
+import time
+from mpl_toolkits.mplot3d import Axes3D
+
+# TODO json for calibration output
+
+def computePointCloud4Scan(scan_name, F, camWorldCenterRight, camWorldCenterLeft, camLeft, camRight):
+    #todo: remove 3tresh
+    path_left_dir = scan_name + "/generated/3tresh/Left"
+    path_right_dir = scan_name + "/generated/3tresh/Right"
+    print(path_left_dir)
+    number_pictures = len(os.listdir(path_left_dir))
+    world_points = []
+    for i in range(1):
+        
+        print(i)
+        name_pict_left = path_left_dir + "/" + str(i) + ".jpg"
+        name_pict_right = path_right_dir + "/" + str(i) + ".jpg"
+        print(name_pict_left)
+
+        img_left = cv2.imread(name_pict_left)
+        img_right =cv2.imread(name_pict_right)
+
+        red_pixels_img_left = getRedPixels(img_left)
+        epilines_img_left = getEpilines(red_pixels_img_left, F)
+        
+        red_pixels_img_right = getRedPixels(img_right)
+
+        left_right_pixels = matchLeftAndRightPixels(red_pixels_img_right, epilines_img_left, red_pixels_img_left)
+        world_points.append(computeWorldCoordinates(left_right_pixels, camWorldCenterRight, camWorldCenterLeft, camLeft, camRight))
+
+    draw_point_cloud(world_points)
+
+
+def draw_point_cloud(world_points):
+    x, y, z = [], [], []
+    for points in world_points:
+        for point in points:
+            x.append(point[0])
+            y.append(point[1])
+            z.append(point[2])
+    figure = plt.figure()
+    ax = Axes3D(figure, auto_add_to_figure=False) ## auto_add_to_figure=False pour ne plus avoir d'erreur
+    figure.add_axes(ax) ## Pour ne plus avoir d'erreur
+    ax.scatter(x, y, z, c='r', marker='o')
+    plt.show()
+
+
+
+
+
+# def lineY(coefs,x):
+#     a,b,c = coefs
+#     return-(c+a*x)/b
+
+
+# def drawEpilines(img, epilines):
+
+#     for i in range(0, len(epilines), 80):
+#         plt.plot([0,img.shape[0]],[lineY(epilines[i],0),lineY(epilines[i],img.shape[0])],'g')
+#         plt.imshow(img)
+#     plt.show()
+        
+
