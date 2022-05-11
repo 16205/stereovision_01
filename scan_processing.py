@@ -13,7 +13,8 @@ def computePointCloud4Scan(scan_name, F, camWorldCenterRight, camWorldCenterLeft
     print(path_left_dir)
     number_pictures = len(os.listdir(path_left_dir))
     world_points = []
-    for i in range(1):
+    points_world_dict = {"scan" : {"scan name " : scan_name}}
+    for i in range(5):
         
         print(i)
         name_pict_left = path_left_dir + "/" + str(i) + ".jpg"
@@ -29,8 +30,12 @@ def computePointCloud4Scan(scan_name, F, camWorldCenterRight, camWorldCenterLeft
         red_pixels_img_right = getRedPixels(img_right)
 
         left_right_pixels = matchLeftAndRightPixels(red_pixels_img_right, epilines_img_left, red_pixels_img_left)
-        world_points.append(computeWorldCoordinates(left_right_pixels, camWorldCenterRight, camWorldCenterLeft, camLeft, camRight))
+        world_point_temp = computeWorldCoordinates(left_right_pixels, camWorldCenterRight, camWorldCenterLeft, camLeft, camRight)
+        points_world_dict.update({ i : js.serializeVectorList(world_point_temp)})
+        world_points.append(world_point_temp)
 
+    print(world_points[3])
+    js.buildJson(scan_name, "world_coordinates(xyz)", points_world_dict)
     draw_point_cloud(world_points)
 
 

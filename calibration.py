@@ -3,6 +3,7 @@ import numpy as np
 import os
 import matplotlib as plt
 import time
+import jsonTools as js
 
 #########################################################################################################
 #################################   CALIRBRATION    #####################################################
@@ -30,7 +31,7 @@ def calibration():
     #on fait une boucle for pout traiter automatiquement les images
     print(os.listdir(directory))
     for filename in os.listdir(directory):
-        if filename != "calibration_result":
+        if filename != "calibration_result" and filename != "calibration_params.json":
             filename = directory + '/' +filename
             print(filename)
             image = cv2.imread(filename)
@@ -88,5 +89,7 @@ def computeMatFund(mtx, dist, rvecs, tvecs):
     camWorldCenterLeft = np.linalg.inv(np.concatenate((rotMatLeft,[[0,0,0,1]]), axis=0)) @ np.transpose([[0,0,0,1]])
     camWorldCenterRight = np.linalg.inv(np.concatenate((rotMatRight,[[0,0,0,1]]), axis=0)) @ np.transpose([[0,0,0,1]])
     F = matFondamental(camRight,camWorldCenterLeft,camLeft) 
+    calibration_dict = {"F": F.tolist() , "camLeft" : camLeft.tolist(), "camRight" : camRight.tolist(), "camWorldCenterLeft" : camWorldCenterLeft.tolist(), "camWorldCenterRight" : camWorldCenterRight.tolist()}
+    js.buildJson("calibration", "calibration_params", calibration_dict)
     return F, camLeft, camRight, camWorldCenterLeft, camWorldCenterRight
 
