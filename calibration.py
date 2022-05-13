@@ -13,7 +13,7 @@ methode qui retourne les caractéristiques du système nécessaires pour le trai
 '''
 def calibration():
     #on définit le chessboard
-    number_of_square_X = 10
+    number_of_square_X = 8
     number_of_square_Y = 8
     nX = number_of_square_X - 1 #le nombre de coins intérieur
     nY = number_of_square_Y - 1
@@ -26,8 +26,8 @@ def calibration():
     objpoints = [] #3D points in the real world space
     imgpoints = [] #2D points in the image plane
     #on prépare les coordonnées dans le chessboard des angles avec pour unité les cases
-    objp = np.zeros((9*7,3), np.float32)
-    objp[:,:2] = np.mgrid[0:9,0:7].T.reshape(-1,2)
+    objp = np.zeros((nX*nY,3), np.float32)
+    objp[:,:2] = np.mgrid[0:nX,0:nY].T.reshape(-1,2)
     #on fait une boucle for pout traiter automatiquement les images
     print(os.listdir(directory))
     for filename in os.listdir(directory):
@@ -43,7 +43,6 @@ def calibration():
             #         break
             # Find the corners on the chessboard
             success, corners = cv2.findChessboardCorners(gray, (nY, nX), None)
-            print(corners)
             # If the corners are found by the algorithm, draw them
             if success == True:
                 objpoints.append(objp)

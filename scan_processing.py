@@ -14,7 +14,7 @@ def computePointCloud4Scan(scan_name, F, camWorldCenterRight, camWorldCenterLeft
     number_pictures = len(os.listdir(path_left_dir))
     world_points = []
     points_world_dict = {"scan" : {"scan name " : scan_name}}
-    for i in range(5):
+    for i in range(1):
         
         print(i)
         name_pict_left = path_left_dir + "/" + str(i) + ".jpg"
@@ -34,7 +34,6 @@ def computePointCloud4Scan(scan_name, F, camWorldCenterRight, camWorldCenterLeft
         points_world_dict.update({ i : js.serializeVectorList(world_point_temp)})
         world_points.append(world_point_temp)
 
-    print(world_points[3])
     js.buildJson(scan_name, "world_coordinates(xyz)", points_world_dict)
     draw_point_cloud(world_points, camWorldCenterLeft, camWorldCenterRight)
 
@@ -49,12 +48,16 @@ def draw_point_cloud(world_points, camWorldCenterLeft, camWorldCenterRight):
     figure = plt.figure()
     ax = Axes3D(figure, auto_add_to_figure=False) ## auto_add_to_figure=False pour ne plus avoir d'erreur
     figure.add_axes(ax) ## Pour ne plus avoir d'erreur
-    ax.scatter(x, y, z, c='r', marker='o')
+    # ax.scatter(x, y, z, c='r', marker='o')
     x1,y2,z2,d = camWorldCenterLeft
-    ax.scatter(x, y, z, c='g', marker='o')
+    ax.scatter(x1, y2, z2, c='g', marker='o')
     
     x2,y2,z2,d2 = camWorldCenterRight
     ax.scatter(x2, y2, z2 , c='b', marker='o')
+    ax.scatter(0, 0, 0, c='r', marker = '*')
+    ax.set_xlabel('$X$', fontsize=20, rotation=150)
+    ax.set_ylabel('$Y$')
+    ax.set_zlabel n('$z$', fontsize=30, rotation=60)
     plt.show()
 
 
