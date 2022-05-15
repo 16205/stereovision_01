@@ -4,8 +4,17 @@ import numpy as np
 import glob
 from matplotlib import pyplot as plt
 import os
+import jsonTools as js
 
 # __________________________________________CALIBRATION DES CAMERAS__________________________________________
+def crochets(v):
+    v = v[:,0]
+    return np.array([ [ 0,-v[2],v[1] ],[ v[2],0,-v[0] ],[ -v[1],v[0],0 ] ])
+
+
+def matFondamental(camLeft,centerRight,camRight):
+    
+    return np.array(crochets(camLeft @ centerRight) @ camLeft @ np.linalg.pinv(camRight))
 
 # On définit le chessboard
 # Chessboard dimensions
@@ -15,8 +24,8 @@ nX = number_of_squares_X - 1 # Nombre de coins intérieurs le long de l'axe x
 nY = number_of_squares_Y - 1 # Nombre de coins intérieurs le long de l'axe y
 
 # On fait une boucle  for pour parcourir toutes les images du chessboard (++ sélection des images)
-directory = "chessboards/test"
-result_directory = "chessboards/result/"
+directory = "calibration"
+result_directory = "calibration/calibration_result"
 
 # Prépare object points, comme (0,0,0), (1,0,0), (2,0,0) ...., (6,5,0)
 objp = np.zeros((7*7,3), np.float32)
@@ -26,34 +35,35 @@ objp[:,:2] = np.mgrid[0:7,0:7].T.reshape(-1,2)
 objpoints = [] # 3d point dans le monde réel
 imgpoints = [] # 2d points dans le plan image
 for filename in os.listdir(directory):
-    filename = directory + "/" + filename
-    print (filename)
+    if filename != 'calibration_result' and filename!='calibration_params.json':
+        filename = directory + "/" + filename
+        print (filename)
+        
+        # Load une image
+        image = cv2.imread(filename)
+        
+        # Convertir l'image en niveaux de gris (grayscale)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  
     
-    # Load une image
-    image = cv2.imread(filename)
-    
-    # Convertir l'image en niveaux de gris (grayscale)
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  
- 
-    # Trouver les coins du chessboard
-    success, corners = cv2.findChessboardCorners(gray, (nY, nX), None)
-    print(success)
-     
-    # Si les coins sont trouvés par l'algorithme, on les dessine.
-    if success == True:
-        objpoints.append(objp)
-    
-        # On ajoute les corners à la liste
-        imgpoints.append(corners)
-    
-        # Dessine les corners
-        cv2.drawChessboardCorners(image, (nY, nX), corners, success)
-    
-        # On écrit les images modifiées dans un fichiers afin de les voir
-        new_filename =  result_directory + filename[len(directory)+1::]    
-    
-        # Save la nouvelle image dans le working directory
-        cv2.imwrite(new_filename, image)
+        # Trouver les coins du chessboard
+        success, corners = cv2.findChessboardCorners(gray, (nY, nX), None)
+        print(success)
+        
+        # Si les coins sont trouvés par l'algorithme, on les dessine.
+        if success == True:
+            objpoints.append(objp)
+        
+            # On ajoute les corners à la liste
+            imgpoints.append(corners)
+        
+            # Dessine les corners
+            cv2.drawChessboardCorners(image, (nY, nX), corners, success)
+        
+            # On écrit les images modifiées dans un fichiers afin de les voir
+            new_filename =  result_directory + filename[len(directory)+1::]    
+        
+            # Save la nouvelle image dans le working directory
+            cv2.imwrite(new_filename, image)
 print("DONE")
 
 
@@ -89,8 +99,11 @@ camRight = mtx @ rotMatRight
 # Trouver cx et cy pour chaque caméra
 camWorldCenterLeft = np.linalg.inv(np.concatenate((rotMatLeft,[[0,0,0,1]]), axis=0)) @ np.transpose([[0,0,0,1]])
 camWorldCenterRight = np.linalg.inv(np.concatenate((rotMatRight,[[0,0,0,1]]), axis=0)) @ np.transpose([[0,0,0,1]])
+print(camWorldCenterLeft)
 print("DONE")
-
+F = matFondamental(camRight,camWorldCenterLeft,camLeft) 
+calibration_dict = {"F": F.tolist() , "camLeft" : camLeft.tolist(), "camRight" : camRight.tolist(), "camWorldCenterLeft" : camWorldCenterLeft.tolist(), "camWorldCenterRight" : camWorldCenterRight.tolist()}
+js.buildJson("calibration", "calibration_params", calibration_dict)
 
 # Visualization
 # _______________________Montrer tous les coins et le centre optique des caméras gauche et droite____________________
@@ -106,6 +119,9 @@ def plotDotWorld():
     
     x2,y2,z2,d2 = camWorldCenterRight
     ax.scatter(x2, y2, z2 , c='g', marker='o') ## En vert, le centre caméra droite
+
+    #on affiche aussi l'origne
+    ax.scatter(0,0,0, c='b', marker = '*')
     
     plt.show()
     

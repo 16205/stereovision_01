@@ -1,0 +1,13 @@
+1) La translation pour ramener le trait laser au centre du repere:
+    1) on decalle les  points de -6.7 en x
+    2) on decalle les points de 2.25
+    3) on decalle les points de -10
+
+2) Trouver une correspondance entre pixels et cm 
+    on trouve l'écart en x entre les cameras et on la divise par la distance
+    réelle en mm cela nous donnera le ratio entre les deux 
+
+3) La translation pour déplacer le trait de l'origine pour qu'il soit à sa vraie place par rapport au centre du plateau tournant
+    1) on decalle les points en z de -(25mm*ratio_px2mm)
+    
+

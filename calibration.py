@@ -109,6 +109,10 @@ def plotDotWorld(objp, camWorldCenterLeft, camWorldCenterRight):
     
     x2,y2,z2,d2 = camWorldCenterRight
     ax.scatter(x2, y2, z2 , c='g', marker='o')
-    
+    #on affiche aussi l'origne
+    ax.scatter(0,0,0, c='b', marker = '*')
+    ax.set_xlabel('$X$', fontsize=20, rotation=150)
+    ax.set_ylabel('$Y$')
+    ax.set_zlabel('$z$', fontsize=30, rotation=60)
     
     plt.show()

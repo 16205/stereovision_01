@@ -48,6 +48,8 @@ def matchLeftAndRightPixels(red_pixels_right, epilines, red_pixels_left):
 
 def computeWorldCoordinates(left_right_pixels, camWorldCenterRight, camWorldCenterLeft, camLeft, camRight):
     points = []
+    leftObjects = []
+    rightObjects = []
     for pixels in left_right_pixels:
         left_pixel = np.array(pixels[0])
         right_pixel = np.array(pixels[1])
@@ -57,8 +59,9 @@ def computeWorldCoordinates(left_right_pixels, camWorldCenterRight, camWorldCent
     
         # Obtenir les coordonnées 3D monde/objet de tous les points
         leftObject = (np.linalg.pinv(camLeft) @ left_pixel)
+        leftObjects.append(leftObject)
         rightObject = (np.linalg.pinv(camRight) @ right_pixel) 
-        
+        rightObjects.append(rightObjects)
         # Points caractéristiques des lignes rétro-projetées
         leftEndVec = arrayToVector(leftObject)
         rightEndVec = arrayToVector(rightObject)
@@ -67,12 +70,11 @@ def computeWorldCoordinates(left_right_pixels, camWorldCenterRight, camWorldCent
 
         # Intersection entre deux lignes rétroprojetées = point du monde réel
         try:
-            points.append(list(pygeo.intersect_line_line(leftStartVec,leftEndVec,rightStartVec,rightEndVec))[0])
+            points.append(list(pygeo.intersect_line_line(leftStartVec,leftEndVec,rightStartVec,rightEndVec))[0]*10)
         except:
-            print("zboubzboub")
             pass
 
-    return points
+    return points, leftObjects, rightObjects
 
 
    
